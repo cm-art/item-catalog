@@ -15,7 +15,7 @@ class User(Base):
     __tablename__ = 'user'
 
     id = Column(Integer, primary_key=True)
-    email = Column(String(320), unique=True, nullable=False)
+    email = Column(String(320), nullable=False)
     name = Column(String(80), nullable=False)
     building = Column(String(3), nullable=False)
 
@@ -34,31 +34,6 @@ class Drive(Base):
 
 
 engine = create_engine('sqlite:///drivewipe.db')
-
 Base.metadata.create_all(engine)
 
-engine = create_engine('sqlite:///drivewipe.db')
-Base.metadata.bind = engine
-DBSession = sessionmaker(bind=engine)
-session = DBSession()
-
-myFirstUser = User(
-    name="Chris Martin",
-    email="cmart@oath.com",
-    building="bf2")
-session.add(myFirstUser)
-session.commit()
-
-myFirstDrive = Drive(
-    serialno="S2Z5NY0HC12345",
-    model="SM0256G",
-    manf="Apple",
-    wipe_status="Dirty",
-    wipe_start=datetime.now(),
-    wipe_end=datetime.now(),
-    user_id="1")
-session.add(myFirstDrive)
-session.commit()
-
-firstResult = session.query(User).first()
-print("Database Setup completed, first user added:", firstResult.name)
+print("Database Setup completed")
