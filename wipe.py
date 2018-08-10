@@ -4,6 +4,7 @@ from sqlalchemy import create_engine, asc
 from sqlalchemy.orm import sessionmaker
 from database_setup import Base, User, Drive
 from flask import session as login_session
+import datetime
 import random
 import string
 
@@ -48,19 +49,17 @@ def showDriveJSON():
     items = session.query(Drive).order_by(Drive.wipe_end.desc())
     return jsonify(Drive=[i.serialize for i in items])
 
-@app.route('/api/v1/drives/<int:user_id>/date/<selected_date>/JSON')
-# Select by Date help found below
-# How to collect the date:    https://stackoverflow.com/a/31670517
-# How to query for the date:    https://stackoverflow.com/a/40449949
-def wipeByUserDateJSON(user_id, selected_date):
-    """Returns JSON of All drives wiped by user on Certain Date"""    
-    selected_date = datetime.strptime(selected_date, "%Y-%m-%d").date()
+@app.route('/api/v1/drives/<int:u_id>/JSON')
+def wipeByUser(u_id):
+    """Returns JSON of All drives wiped by user"""
+    userWipe = session.query(Drive).filter_by(user_id = u_id)
+    return jsonify(Drive=[i.serialize for i in userWipe])
 
-    DrivewipeDate = session.query.filter(
-        Drive.wipe_start <= selected_date).filter(
-            Drive.wipe_end >= selected_date)
-    return jsonify(Drive=Drive.serialize)
-
+@app.route('/api/v1/drives/<serialno>/JSON')
+def driveSerialno(serialno):
+    """Returns JSON of All drives that matches serialno"""
+    serialNo = session.query(Drive).filter_by(serialno = serialno)
+    return jsonify(Drive=[i.serialize for i in serialNo])
 
 # CRUD for Drives
 # READ, shows home and also Drives Wiped 
@@ -151,7 +150,7 @@ def deleteDrive(serialno):
 def showLogin():
     state = ''.join(
         random.choice(
-            string.ascii_uppercase + string.digits) for x in xrange(32))
+            string.ascii_uppercase + string.digits) for x in range(32))
     login_session['state'] = state
     return render_template('login.html', STATE=state)
 
@@ -165,7 +164,7 @@ def gconnect():
         return response
     code = request.data
 
-    # Oath flow
+    # OAuth flow
     try:
         oauth_flow = flow_from_clientsecrets('client_secrets.json', scope='')
         oauth_flow.redirect_uri = 'postmessage'

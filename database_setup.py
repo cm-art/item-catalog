@@ -18,6 +18,7 @@ class User(Base):
     email = Column(String(320), nullable=False)
     name = Column(String(80), nullable=False)
     building = Column(String(3), nullable=False)
+    picture = Column(String(250))
 
 
 class Drive(Base):
@@ -31,6 +32,20 @@ class Drive(Base):
     wipe_end = Column(DateTime)
     user_id = Column(Integer, ForeignKey('user.id'))
     user = relationship(User)
+
+
+    @property
+    def serialize(self):
+        """Return data in serialized format for JSON printing"""
+        return {
+            'serialno': self.serialno,
+            'manf': self.manf,
+            'model': self.model,
+            'wipe_status': self.wipe_status,
+            'wipe_start': str(self.wipe_start),
+            'wipe_end': str(self.wipe_end),
+            'user_id': self.user_id,
+        }
 
 
 engine = create_engine('sqlite:///drivewipe.db')
